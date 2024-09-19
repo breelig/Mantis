@@ -125,7 +125,10 @@ extension UIImage {
 }
 
 extension UIImage {
-    func getImageWithTransparentBackground(borderWidth: CGFloat = 0, borderColor: UIColor = .clear, pathBuilder: (CGRect) -> UIBezierPath) -> UIImage? {
+    func getImageWithTransparentBackground(backgroundColor: UIColor?,
+                                               borderWidth: CGFloat = 0,
+                                               borderColor: UIColor = .clear,
+                                               pathBuilder: (CGRect) -> UIBezierPath) -> UIImage? {
         guard let cgImage = cgImage else { return nil }
         
         // Because imageRendererFormat is a read only property
@@ -138,6 +141,12 @@ extension UIImage {
         
         return UIGraphicsImageRenderer(size: size, format: format).image { _ in
             let path: UIBezierPath
+            
+            // Draw an orange background
+            if let backgroundColor = backgroundColor {
+                backgroundColor.setFill()
+                UIBezierPath(rect: rect).fill()
+            }
             
             if borderWidth > 0 {
                 let edgeInsets = UIEdgeInsets(top: borderWidth, left: borderWidth, bottom: borderWidth, right: borderWidth)
@@ -158,35 +167,35 @@ extension UIImage {
     }
     
     func rectangleMasked(borderWidth: CGFloat = 0, borderColor: UIColor = .clear) -> UIImage? {
-        return getImageWithTransparentBackground(borderWidth: borderWidth, borderColor: borderColor) {
+        return getImageWithTransparentBackground(backgroundColor: nil, borderWidth: borderWidth, borderColor: borderColor) {
             UIBezierPath(rect: $0)
         }
     }
     
-    func ellipseMasked(borderWidth: CGFloat = 0, borderColor: UIColor = .clear) -> UIImage? {
-        return getImageWithTransparentBackground(borderWidth: borderWidth, borderColor: borderColor) {
-            UIBezierPath(ovalIn: $0)
+    func ellipseMasked(backgroundColor: UIColor?, borderWidth: CGFloat = 0, borderColor: UIColor = .clear) -> UIImage? {
+            return getImageWithTransparentBackground(backgroundColor: backgroundColor, borderWidth: borderWidth, borderColor: borderColor) {
+                UIBezierPath(ovalIn: $0)
+            }
         }
-    }
     
-    func roundRect(_ radius: CGFloat, borderWidth: CGFloat = 0, borderColor: UIColor = .clear) -> UIImage? {
-        return getImageWithTransparentBackground(borderWidth: borderWidth, borderColor: borderColor) {
-            UIBezierPath(roundedRect: $0, cornerRadius: radius)
+    func roundRect(_ radius: CGFloat, backgroundColor: UIColor?, borderWidth: CGFloat = 0, borderColor: UIColor = .clear) -> UIImage? {
+            return getImageWithTransparentBackground(backgroundColor: nil, borderWidth: borderWidth, borderColor: borderColor) {
+                UIBezierPath(roundedRect: $0, cornerRadius: radius)
+            }
         }
-    }
     
-    func heart(borderWidth: CGFloat = 0, borderColor: UIColor = .clear) -> UIImage? {
-        return getImageWithTransparentBackground(borderWidth: borderWidth, borderColor: borderColor) {
+    func heart(backgroundColor: UIColor?, borderWidth: CGFloat = 0, borderColor: UIColor = .clear) -> UIImage? {
+        return getImageWithTransparentBackground(backgroundColor: backgroundColor, borderWidth: borderWidth, borderColor: borderColor) {
             UIBezierPath(heartIn: $0)
         }
     }
     
-    func clipPath(_ points: [CGPoint], borderWidth: CGFloat = 0, borderColor: UIColor = .clear) -> UIImage? {
+    func clipPath(_ points: [CGPoint], backgroundColor: UIColor?, borderWidth: CGFloat = 0, borderColor: UIColor = .clear) -> UIImage? {
         guard points.count >= 3 else {
             return nil
         }
         
-        return getImageWithTransparentBackground(borderWidth: borderWidth, borderColor: borderColor) {rect in
+        return getImageWithTransparentBackground(backgroundColor: backgroundColor, borderWidth: borderWidth, borderColor: borderColor) {rect in
             let newPoints = points.map { CGPoint(x: rect.origin.x + rect.width * $0.x, y: rect.origin.y + rect.height * $0.y) }
             
             let path = UIBezierPath()
