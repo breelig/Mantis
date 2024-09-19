@@ -166,6 +166,12 @@ open class CropViewController: UIViewController {
         showImageAutoAdjustStatusIfNeeded()
     }
     
+    public func updateBackgroundColor() {
+            if let color = config.cropViewConfig.backgroundColor {
+                cropView.updateBackgroundColor(color)
+            }
+        }		
+    
     func showImageAutoAdjustStatusIfNeeded() {
         if let imageAdjustHelper = imageAdjustHelper {
             if imageAdjustHelper.detectHorizon() {

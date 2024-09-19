@@ -42,6 +42,10 @@ extension CropMaskViewManager: CropMaskViewManagerProtocol {
         showVisualEffectBackground()
     }
     
+    func updateBackgroundColor(_ color: UIColor) {
+            visualEffectView.backgroundColor = color
+        }
+    
     func removeMaskViews() {
         maskViews.forEach { $0.removeFromSuperview() }
     }

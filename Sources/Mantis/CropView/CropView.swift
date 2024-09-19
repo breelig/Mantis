@@ -62,7 +62,7 @@ final class CropView: UIView {
     var isManuallyZoomed = false
     var forceFixedRatio = false
     var checkForForceFixedRatioFlag = false
-    let cropViewConfig: CropViewConfig
+    var cropViewConfig: CropViewConfig
     
     private var flipOddTimes = false
     
@@ -127,6 +127,13 @@ final class CropView: UIView {
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    public func updateBackgroundColor(_ color: UIColor) {
+        cropMaskViewManager.updateBackgroundColor(color)
+        cropViewConfig.backgroundColor = color
+        self.backgroundColor = color // this didn't work
+        print("bg color:: \(color)")
     }
     
     private func handleCropBoxFrameChange(_ cropBoxFrame: CGRect) {
@@ -683,7 +690,7 @@ extension CropView {
     
     func addImageMask(to cropOutput: CropOutput) -> CropOutput {
         let (croppedImage, transformation, cropInfo) = cropOutput
-        
+
         guard let croppedImage = croppedImage else {
             assertionFailure("croppedImage should not be nil")
             return cropOutput
@@ -691,13 +698,13 @@ extension CropView {
         
         switch cropViewConfig.cropShapeType {
         case .rect,
-                .square,
-                .circle(maskOnly: true),
-                .roundedRect(_, maskOnly: true),
-                .path(_, maskOnly: true),
-                .diamond(maskOnly: true),
-                .heart(maskOnly: true),
-                .polygon(_, _, maskOnly: true):
+             .square,
+             .circle(maskOnly: true),
+             .roundedRect(_, maskOnly: true),
+             .path(_, maskOnly: true),
+             .diamond(maskOnly: true),
+             .heart(maskOnly: true),
+             .polygon(_, _, maskOnly: true):
             
             let outputImage: UIImage?
             if cropViewConfig.cropBorderWidth > 0 {
@@ -709,24 +716,28 @@ extension CropView {
             
             return (outputImage, transformation, cropInfo)
         case .ellipse:
-            return (croppedImage.ellipseMasked(borderWidth: cropViewConfig.cropBorderWidth,
+            return (croppedImage.ellipseMasked(backgroundColor: cropViewConfig.backgroundColor,
+                                               borderWidth: cropViewConfig.cropBorderWidth,
                                                borderColor: cropViewConfig.cropBorderColor),
                     transformation,
                     cropInfo)
         case .circle:
-            return (croppedImage.ellipseMasked(borderWidth: cropViewConfig.cropBorderWidth,
+            return (croppedImage.ellipseMasked(backgroundColor: cropViewConfig.backgroundColor,
+                                               borderWidth: cropViewConfig.cropBorderWidth,
                                                borderColor: cropViewConfig.cropBorderColor),
                     transformation,
                     cropInfo)
         case .roundedRect(let radiusToShortSide, maskOnly: false):
             let radius = min(croppedImage.size.width, croppedImage.size.height) * radiusToShortSide
             return (croppedImage.roundRect(radius,
+                                           backgroundColor: cropViewConfig.backgroundColor,
                                            borderWidth: cropViewConfig.cropBorderWidth,
                                            borderColor: cropViewConfig.cropBorderColor),
                     transformation,
                     cropInfo)
         case .path(let points, maskOnly: false):
             return (croppedImage.clipPath(points,
+                                          backgroundColor: cropViewConfig.backgroundColor,
                                           borderWidth: cropViewConfig.cropBorderWidth,
                                           borderColor: cropViewConfig.cropBorderColor),
                     transformation,
@@ -734,18 +745,21 @@ extension CropView {
         case .diamond(maskOnly: false):
             let points = [CGPoint(x: 0.5, y: 0), CGPoint(x: 1, y: 0.5), CGPoint(x: 0.5, y: 1), CGPoint(x: 0, y: 0.5)]
             return (croppedImage.clipPath(points,
+                                          backgroundColor: cropViewConfig.backgroundColor,
                                           borderWidth: cropViewConfig.cropBorderWidth,
                                           borderColor: cropViewConfig.cropBorderColor),
                     transformation,
                     cropInfo)
         case .heart(maskOnly: false):
-            return (croppedImage.heart(borderWidth: cropViewConfig.cropBorderWidth,
+            return (croppedImage.heart(backgroundColor: cropViewConfig.backgroundColor,
+                                       borderWidth: cropViewConfig.cropBorderWidth,
                                        borderColor: cropViewConfig.cropBorderColor),
-                    transformation,
-                    cropInfo)
+                                    transformation,
+                                    cropInfo)
         case .polygon(let sides, let offset, maskOnly: false):
             let points = polygonPointArray(sides: sides, originX: 0.5, originY: 0.5, radius: 0.5, offset: 90 + offset)
             return (croppedImage.clipPath(points,
+                                          backgroundColor: cropViewConfig.backgroundColor,
                                           borderWidth: cropViewConfig.cropBorderWidth,
                                           borderColor: cropViewConfig.cropBorderColor),
                     transformation,

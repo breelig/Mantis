@@ -29,6 +29,7 @@ protocol CropViewProtocol: UIView {
     func rotateBy90(withRotateType rotateType: RotateBy90DegreeType, completion: @escaping () -> Void)
     func handleAlterCropper90Degree()
     func handlePresetFixedRatio(_ ratio: Double, transformation: Transformation)
+    func updateBackgroundColor(_ color: UIColor)
     func applyCropState(with cropState: CropState)
     func transform(byTransformInfo transformation: Transformation, isUpdateRotationControlView: Bool)
     func getTransformInfo(byTransformInfo transformInfo: Transformation) -> Transformation
